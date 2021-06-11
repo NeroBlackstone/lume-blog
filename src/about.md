@@ -7,4 +7,4 @@ menu:
   order: 3
 ---
 
-I am a person that writes stuff.
+ACG Pianist. Computer science graduate student.

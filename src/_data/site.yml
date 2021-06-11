@@ -1,30 +1,30 @@
-title: Your blog title here
-description: Your blog description
+title: Welcome to my blog !
+description: (其实这只是个笔记本啦~~)
 author:
   # url is important, be sure replace url before deployment
-  url: https://lume-blog-muse.pages.dev/
-  name: Your User Name
-  bio: Your bio here
+  url: https://neroblackstone.pages.dev/
+  name: Nero Blackstone
+  bio: Another scum
   # recommended resolution: 512x512,1:1
-  photoPath: /img/Sample_User_Icon.png
+  photoPath: /img/zeke.jpeg
   # If you dont have social media just add # to comment that line.
-  email: example@example.com
-  twitter: https://example.com/
-  youtube: https://example.com/
-  github: https://example.com/
-footer: Footer message here
+  twitter: https://twitter.com/Fl0ydCampbell
+  youtube: https://odysee.com/@NeroBlackstone:b
+  github: https://github.com/NeroBlackstone
+  email: gf7600gs@gmail.com
+footer: 
 
 friends: 
   - 
-    photoPath: /img/friends/Sample_User_Icon.png
-    name: friend1
-    bio: My friend1
-    link: https://www.friend1.com
+    photoPath: /img/friends/SgDylan.png
+    name: SgDylan
+    bio: 是喵喵喵!
+    link: https://blog.sgdylan.com/
   - 
-    photoPath: /img/friends/Sample_User_Icon.png
-    name: friend2
-    bio: My friend2
-    link: https://www.friend1.com
+    photoPath: /img/friends/Oscar.jpeg
+    name: Oscar Otero
+    bio: Web designer and developer, maintainer of lume
+    link: https://oscarotero.com/
 
 # How many posts in your archive page.
 postsPerPage : 5
@@ -40,12 +40,12 @@ darkMode : true
 
 # Go https://disqus.com/admin/create/ create a new site
 disqus: 
-  enable: false
+  enable: true
   # this is shortname of your disqus site
   # for example : the disqus site admin url is https://myblog.disqus.com/admin/
   # the short name is: myblog
   # detial:https://help.disqus.com/en/articles/1717111-what-s-a-shortname
-  shortname: shortname
+  shortname: neroblackstones-blog
 
 # Lume version this template should work.
 # Check lume-blog-muse github repository to get template for newer lume.
