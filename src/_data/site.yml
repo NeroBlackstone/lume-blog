@@ -32,7 +32,7 @@ postsPerPage : 5
 indexPostNum : 5
 
 # Enable dark mode according system settings.
-autoDarkMode : true
+autoDarkMode : false
 # Use dark mode or light mode only, only available when autoDarkMode is false
 # if value is false, use light theme only
 # if value is true, dark theme only
