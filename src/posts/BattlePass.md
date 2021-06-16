@@ -2,7 +2,7 @@
 title: Battle Pass如何利用你的人性弱点？
 description: 现在的厂商为了赚钱真是疯了
 date: 2021-06-14
-img: /image/BattlePass.jpg
+img: /image/BattlePass.webp
 tags:
     - 电子游戏
 ---

@@ -2,7 +2,7 @@
 title: 新博客！
 description: 又又又是新的开始
 date: 2021-06-11
-img: /image/HelloWorld.jpeg
+img: /image/HelloWorld.webp
 tags:
     - 杂谈
 ---
