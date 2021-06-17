@@ -9,13 +9,12 @@ sections:
   label: XML
   create: documents
   match: "*.xml"
-  new_doc_ext: ".xml"
+  new_doc_ext: xml
 - type: document
   path: "./src/posts"
   label: Page
-  match: "**/*"
-upload_dir: uploads
-public_path: "/uploads"
+upload_dir: "./src/posts/image"
+public_path: "./image"
 front_matter_path: ''
 use_front_matter_path: false
 file_template: ":filename:"
