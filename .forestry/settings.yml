@@ -5,13 +5,13 @@ admin_path:
 webhook_url: 
 sections:
 - type: directory
-  path: "./src/xml"
+  path: src/xml
   label: XML
   create: documents
   match: "*.xml"
   new_doc_ext: xml
 - type: document
-  path: "./src/posts"
+  path: src/posts
   label: Page
 upload_dir: "./src/posts/image"
 public_path: "./image"
