@@ -13,8 +13,8 @@ sections:
 - type: document
   path: src/posts
   label: Page
-upload_dir: "./src/posts/image"
-public_path: "./image"
+upload_dir: src/posts/image
+public_path: image
 front_matter_path: ''
 use_front_matter_path: false
 file_template: ":filename:"
