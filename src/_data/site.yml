@@ -6,7 +6,7 @@ author:
   name: Nero Blackstone
   bio: Another scum
   # recommended resolution: 512x512,1:1
-  photoPath: /img/zeke.jpeg
+  photoPath: https://res.cloudinary.com/neroblackstone/image/upload/v1624180735/zeke_ao5xno.webp
   # If you dont have social media just add # to comment that line.
   twitter: https://twitter.com/Fl0ydCampbell
   youtube: https://odysee.com/@NeroBlackstone:b
@@ -17,12 +17,12 @@ footer:
 friends: 
   - 
     name: SgDylan
-    photoPath: /img/friends/SgDylan.png
+    photoPath: https://res.cloudinary.com/neroblackstone/image/upload/v1624180746/SgDylan_qmbdo3.webp
     bio: 是喵喵喵!
     link: https://blog.sgdylan.com/
   - 
     name: Oscar Otero
-    photoPath: /img/friends/Oscar.jpeg
+    photoPath: https://res.cloudinary.com/neroblackstone/image/upload/v1624180746/Oscar_cakgrj.webp
     bio: Web designer and developer, maintainer of lume
     link: https://oscarotero.com/
 
