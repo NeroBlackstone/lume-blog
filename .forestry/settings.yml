@@ -4,15 +4,15 @@ auto_deploy: false
 admin_path: 
 webhook_url: 
 sections:
+- type: document
+  path: src/posts
+  label: Page
 - type: directory
   path: src/xml
   label: XML
   create: documents
   match: "*.xml"
   new_doc_ext: xml
-- type: document
-  path: src/posts/*.md
-  label: Page
 upload_dir: src/posts/image
 public_path: image
 front_matter_path: ''
@@ -20,6 +20,7 @@ use_front_matter_path: false
 file_template: ":filename:"
 build:
   preview_output_directory: _site
+  install_dependencies_command: npm install
   preview_docker_image: denoland/deno:latest
   mount_path: "/srv"
   working_dir: "/srv"
