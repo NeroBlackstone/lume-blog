@@ -2,11 +2,11 @@
 title: Battle Pass如何利用你的人性弱点？
 description: 现在的厂商为了赚钱真是疯了
 date: 2021-06-14
-img: /image/BattlePass.webp
+img: https://res.cloudinary.com/neroblackstone/image/upload/v1624176236/BattlePass_hityus.webp
 tags:
-    - 电子游戏
----
+- 电子游戏
 
+---
 > 不了解何为battle pass，请参见 [wikipedia的battle pass条目](https://en.wikipedia.org/wiki/Battle_pass)
 
 为什么现在的游戏多喜欢采用Battle Pass而不是开箱/抽卡作为季度的活动奖励机制。我想这绝对也是利用了人性的弱点。
