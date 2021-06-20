@@ -5,6 +5,12 @@ admin_path:
 webhook_url: 
 sections:
 - type: directory
+  path: src/posts
+  label: Pages
+  create: documents
+  match: "**/*"
+  new_doc_ext: ".md"
+- type: directory
   path: src/xml
   label: XML
   create: documents
