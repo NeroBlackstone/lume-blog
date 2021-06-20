@@ -12,6 +12,7 @@ sections:
   label: Pages
   create: documents
   match: "**/*"
+  exclude: _data.yml
   new_doc_ext: md
 - type: directory
   path: src/xml
