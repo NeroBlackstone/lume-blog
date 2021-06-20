@@ -5,6 +5,10 @@ admin_path:
 webhook_url: 
 sections:
 - type: document
+  path: src/_data/site.yml
+  label: Settings
+  match: "**/*"
+- type: document
   path: src/about.md
   label: About
 - type: directory
