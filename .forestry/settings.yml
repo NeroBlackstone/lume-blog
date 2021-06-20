@@ -9,7 +9,7 @@ sections:
   label: Pages
   create: documents
   match: "**/*"
-  new_doc_ext: ".md"
+  new_doc_ext: md
 - type: directory
   path: src/xml
   label: XML
@@ -23,6 +23,7 @@ use_front_matter_path: false
 file_template: ":filename:"
 build:
   preview_output_directory: _site
+  install_dependencies_command: deno --version
   preview_docker_image: denoland/deno:latest
   mount_path: "/srv"
   working_dir: "/srv"
