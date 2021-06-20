@@ -20,8 +20,7 @@ use_front_matter_path: false
 file_template: ":filename:"
 build:
   preview_output_directory: _site
-  install_dependencies_command: deno run -A https://deno.land/x/lume/install.js
   preview_docker_image: denoland/deno:latest
   mount_path: "/srv"
   working_dir: "/srv"
-  instant_preview_command: lume --serve
+  instant_preview_command: deno run -A https://deno.land/x/lume/ci.js --serve
