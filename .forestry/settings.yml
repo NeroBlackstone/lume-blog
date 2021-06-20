@@ -4,9 +4,6 @@ auto_deploy: false
 admin_path: 
 webhook_url: 
 sections:
-- type: document
-  path: src/posts
-  label: Page
 - type: directory
   path: src/xml
   label: XML
