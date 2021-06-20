@@ -16,13 +16,13 @@ footer:
 
 friends: 
   - 
-    photoPath: /img/friends/SgDylan.png
     name: SgDylan
+    photoPath: /img/friends/SgDylan.png
     bio: 是喵喵喵!
     link: https://blog.sgdylan.com/
   - 
-    photoPath: /img/friends/Oscar.jpeg
     name: Oscar Otero
+    photoPath: /img/friends/Oscar.jpeg
     bio: Web designer and developer, maintainer of lume
     link: https://oscarotero.com/
 
