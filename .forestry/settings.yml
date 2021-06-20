@@ -11,7 +11,7 @@ sections:
   match: "*.xml"
   new_doc_ext: xml
 - type: document
-  path: src/posts
+  path: src/posts/*.md
   label: Page
 upload_dir: src/posts/image
 public_path: image
