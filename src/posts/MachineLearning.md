@@ -1,12 +1,12 @@
 ---
 title: Machine Learning notes
-description: by Stanford University 
+description: by Stanford University
 date: 2021-06-14
-img: /image/MachineLearning.webp
+img: https://res.cloudinary.com/neroblackstone/image/upload/v1624176236/MachineLearning_buc1ao.webp
 tags:
-    - Machine Learning
----
+- Machine Learning
 
+---
 ## What is Machine learning
 
 Arthur Samuel described it as : "Machine learning is the science of getting computers to learn, without being explicitly programmed."  This is an older, informal definition.
@@ -32,4 +32,3 @@ In general, any machine learning problem can be assigned to one of two broad cla
 - Unsupervised learning
 
 ## Supervised Learning
-
