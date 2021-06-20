@@ -17,6 +17,7 @@ site.script("watchSass","sass --watch src/sass/darkstyles.scss:src/css/darkstyle
 
 site.ignore("README.md");
 site.ignore("sass")
+site.copy("admin")
 site.copy("img");
 site.copy("posts/image","image")
 site.copy("xml")
