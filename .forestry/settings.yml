@@ -23,10 +23,10 @@ sections:
   create: documents
   match: "*.xml"
   new_doc_ext: xml
-upload_dir: src/posts/image
+upload_dir: ''
 public_path: image
 front_matter_path: ''
-use_front_matter_path: false
+use_front_matter_path: 
 file_template: ":filename:"
 build:
   preview_output_directory: _site
