@@ -4,25 +4,30 @@ auto_deploy: false
 admin_path: "/admin"
 webhook_url: 
 sections:
-- type: document
-  path: src/_data/site.yml
-  label: Settings
-- type: document
-  path: src/about.md
-  label: About
 - type: directory
   path: src/posts
   label: Pages
   create: documents
-  match: "**/*"
+  match: ".md"
   exclude: _data.yml
   new_doc_ext: md
 - type: directory
+  path: src/midi
+  label: MIDI
+  create: none
+  match: ".mid"
+- type: document
+  path: src/about.md
+  label: About
+- type: directory
   path: src/xml
   label: MusicXML
-  create: documents
+  create: none
   match: "*.xml"
   new_doc_ext: xml
+- type: document
+  path: src/_data/site.yml
+  label: Settings
 upload_dir: ''
 public_path: image
 front_matter_path: ''
