@@ -10,7 +10,7 @@ sections:
   create: documents
   match: ".md"
   exclude: _data.yml
-  new_doc_ext: md
+  new_doc_ext: ".md"
 - type: directory
   path: src/midi
   label: MIDI
