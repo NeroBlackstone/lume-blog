@@ -11,6 +11,9 @@ fields:
 - type: datetime
   name: date
   label: date
+  config:
+    date_format: YYYY/MM/DD
+  description: post date
 - type: file
   name: img
   label: img
