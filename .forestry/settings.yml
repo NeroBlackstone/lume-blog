@@ -29,7 +29,7 @@ sections:
   path: src/_data/site.yml
   label: Settings
 upload_dir: ''
-public_path: ''
+public_path: https://res.cloudinary.com/neroblackstone/image/upload
 front_matter_path: ''
 use_front_matter_path: 
 file_template: ":filename:"
