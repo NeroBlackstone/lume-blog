@@ -72,9 +72,9 @@ Traefik 是用 Go 编写的现代反向代理和负载均衡器，可以轻松�
 
 Appwrite 使用 Redis 来提供三个主要功能。
 
-- **缓存**：Appwrite 使用 Redis 内存缓存来更快地获取数据库查询。
-- **Pub/Sub**：Appwrite 使用带有 Resque 的 Redis 作为 pub/sub 机制在 Appwrite API 和不同的 worker 之间传输消息。
-- **计划任务**：Appwrite 使用 Redis 来存储和触发使用调度容器的未来任务。
+* **缓存**：Appwrite 使用 Redis 内存缓存来更快地获取数据库查询。
+* **Pub/Sub**：Appwrite 使用带有 Resque 的 Redis 作为 pub/sub 机制在 Appwrite API 和不同的 worker 之间传输消息。
+* **计划任务**：Appwrite 使用 Redis 来存储和触发使用调度容器的未来任务。
 
 ### Appwrite的workers
 
@@ -82,4 +82,73 @@ Appwrite 中有很多异步任务发生，一个很好的例子是记录 Appwrit
 
 我们使用内部pub/sub系统， [Resque](https://github.com/resque/php-resque) ， 来累积所有这些任务。各个workers使用这些任务并独立执行。我们有八个消息队列和八个与之配对的workers。
 
-- Audits worker : [Audits worker](https://github.com/appwrite/appwrite/blob/master/app/workers/audits.php)使用来自 `v1-audits` 队列的消息。 Appwrite 定义了一组[系统事件](https://appwrite.io/docs/webhooks#events)。当这些事件发生时，Audits worker会将它们记录到`mariadb`。Audits worker使用 [utopia-php/audit](https://github.com/utopia-php/audit) 库。
+* Audits worker
+
+[Audits worker](https://github.com/appwrite/appwrite/blob/master/app/workers/audits.php)消费来自 `v1-audits` 队列的消息。 Appwrite 定义了一组[系统事件](https://appwrite.io/docs/webhooks#events)。当这些事件发生时，Audits worker会将它们记录到`mariadb`。Audits worker使用 [utopia-php/audit](https://github.com/utopia-php/audit) 库。
+
+* Certificates Worker
+
+[Certificates worker](https://github.com/appwrite/appwrite/blob/master/app/workers/certificates.php) 消费来自 `v1-certificates` 队列的消息。Certificates worker使用 Let's Encrypt 中的 `certbot` 来创建和定期更新 SSL 证书。
+
+- Deletes Worker
+
+[Deletes Worker](https://github.com/appwrite/appwrite/blob/master/app/workers/deletes.php) 消费来自 `v1-deletes` 队列的消息。顾名思义，它在 Appwrite 数据库中执行删除操作。对文档、用户、项目、函数等的删除请求由 Deletes Worker 处理。在目前的状态下，deletes worker 是由某些 API 请求触发的，也由Maintenance worker 触发。
+
+- Functions Worker
+
+[Functions worker](https://github.com/appwrite/appwrite/blob/master/app/workers/functions.php) 消费来自 `v1-functions` 队列的消息并处理与 Appwrite 的云函数相关的所有任务。
+
+- Appwrite 中的云函数可以通过 3 种方式触发：
+	- [异步使用事件](https://appwrite.io/docs/webhooks#events)
+    - [使用 CRON 计划](https://en.wikipedia.org/wiki/Cron)
+    - [使用 Appwrite HTTP API](https://appwrite.io/docs/client/functions?sdk=web#functionsCreateExecution)
+    
+Functions worker 完成启动和运行云函数所需的所有繁重工作。从在启动时为各个环境拉取 Docker 镜像，到管理和运行容器，再到响应错误，functions worker会处理这一切！
+
+- Mails Worker
+
+[Mails worker](https://github.com/appwrite/appwrite/blob/master/app/workers/mails.php) 消费来自 `v1-mails` 队列的消息并且只负责一个功能：发送电子邮件！它只是收集信息并使用 [PHPMailer](https://github.com/PHPMailer/PHPMailer) 发送它们。
+
+- Tasks Worker
+
+[Tasks worker](https://github.com/appwrite/appwrite/blob/master/app/workers/mails.php) 消费来自 `v1-tasks` 队列的消息。 Appwrite 的 Tasks API 允许您安排您的应用程序可能需要在后台运行的任何重复任务。每个任务都是通过定义 CRON 计划和目标 HTTP 端点来创建的。
+
+每个任务都可以使用任何 HTTP 方法、标头或基本 HTTP 身份验证定义任何 HTTP 端点。在 Appwrite 控制台中，您可以查看所有任务、它们的当前状态、上一次和下一次运行时间以及用于查看先前执行结果的响应日志。
+
+- Usage Worker
+
+[Usage worker](https://github.com/appwrite/appwrite/blob/master/app/workers/usage.php) 消费来自 `v1-usage` 队列的消息，并使用 `statsd` 通过 UDP 连接将消息发送到 `Telegraf`。然后将使用统计信息记录在 `influxDB` 中，包括函数执行统计信息、请求总数、存储统计信息等。
+
+- Webhooks Worker
+
+[Webhooks worker](https://github.com/appwrite/appwrite/blob/master/app/workers/webhooks.php) 消费来自 `v1-webhooks` 队列的消息并触发在 Appwrite 控制台中注册的 webhooks。worker检查发生的事件并通过发出 CURL 请求来触发相应的 webhook。Webhooks 允许您构建或设置订阅 Appwrite 上某些[事件](https://appwrite.io/docs/webhooks#events)的集成。当这些事件之一被触发时，我们会向 webhook 的配置 URL 发送一个 HTTP POST 负载。Webhooks 可用于从 CDN 中清除缓存、计算数据或发送 Slack 通知。
+
+此外，我们还有两个workers负责将任务委派给其他workers。
+
+- Maintenance Worker
+
+Maintenance Worker对应 docker-compose 文件中的`appwrite-maintenance`服务。[Maintenance worker](https://github.com/appwrite/appwrite/blob/master/app/tasks/maintenance.php)在这里执行一些内务管理任务，因此您的 Appwrite 服务器不会随着时间的推移而崩溃！在当前状态下，maintenance worker将删除任务委托给 `appwrite-worker-deletes`，然后执行实际删除。我们使用Maintenance worker来调度三种删除：
+
+	- 清理Abuse logs
+	- 清理Audit Logs
+	- 清理Execution Logs
+
+- Schedules Worker
+
+Schedules worker 对应于 docker-compose 文件中的 `appwrite-schedule` 服务。 Schedules worker 在底层使用 [Resque Scheduler](https://github.com/resque/resque) 并处理跨 Appwrite 的 CRON 作业的调度。这包括来自 Tasks API、Webhooks API 和functions API 的 CRON 作业。
+
+### Mariadb
+
+Appwrite 使用 MariaDB 作为项目集合、文档和所有其他元数据的默认数据库。Appwrite 与您在后台使用的数据库无关，并且目前正在积极开发对 Postgres、CockroachDB、MySQL 和 MongoDB 等更多数据库的支持！
+
+### ClamAV
+
+ClamAV 是一个 TCP 防病毒服务器，负责扫描所有用户上传到 Appwrite 存储。 ClamAV 微服务是可选的，可以使用 Appwrite 环境变量禁用。从 Appwrite 0.8 版开始，默认情况下禁用此功能以节省较小设置的内存。如果遇到内存使用率过高的问题，您可以在[此处](https://dev.to/appwrite/learn-how-to-disable-clamav-in-your-appwrite-stack-and-reduce-memory-usage-2e37)了解如何禁用它。
+
+### Influxdb
+
+Appwrite 使用 InfluxDB 来存储您项目的 API 使用指标和统计信息。这是用于生成 API 使用图和处理时间序列数据的引擎。
+
+### Telegraf
+
+Telegraf 是一个插件驱动的服务器代理，用于从多个来源收集指标和事件并将其发送到多个目的地。 Telegraf 通过在将数据发送到数据库之前聚合数据来保护 InfluxDB。Telegraf 在 UDP 协议上运行，这使得数据传输速度极快！
