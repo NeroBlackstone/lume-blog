@@ -8,14 +8,14 @@ sections:
   path: src/posts
   label: Pages
   create: documents
-  match: ".md"
+  match: "*.md"
   exclude: _data.yml
   new_doc_ext: ".md"
 - type: directory
   path: src/midi
   label: MIDI
   create: none
-  match: ".mid"
+  match: "*.mid"
 - type: document
   path: src/about.md
   label: About
