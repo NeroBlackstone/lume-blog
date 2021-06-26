@@ -13,7 +13,7 @@ fields:
   label: date
   config:
     date_format: YYYY/MM/DD
-    export_format: YYYY/MM/DD
+    export_format: YYYY-MM-DD
   description: post date
 - type: file
   name: img
