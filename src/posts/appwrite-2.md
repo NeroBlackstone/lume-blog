@@ -1,6 +1,6 @@
 ---
 title: Appwrite学习笔记(三)
-description: SSL证书
+description: 了解SSL证书和服务端SDK
 date: 2021-06-28
 img: https://res.cloudinary.com/neroblackstone/image/upload/v1624671830/appwrite_i2voda.webp
 tags:
@@ -82,3 +82,56 @@ client
     docker-compose restart appwrite
 
 ## 服务器端 SDK
+
+Appwrite 的愿景强调了这样一个事实，即后端即服务不应该只为前端开发人员设计。基于这一愿景，Appwrite 被设计为与平台无关，并与客户端和服务器端应用程序无缝集成。因为 Appwrite 是自托管的，所以它可以在您现有的防火墙后面使用，并与您现有的后端服务一起使用。Appwrite 的目标不是替换您的后端，而是与其一起工作。
+
+Appwrite 支持 6 个服务器端 SDK。所有的 SDK 都是根据 API 的 Swagger 规范自动生成的。这允许Appwrite的小开发团队总共维护 8 个（客户端 + 服务端）SDK。如果您想帮助Appwrite团队用您喜欢的语言创建 SDK，请随时查看 [SDK Generator](https://github.com/appwrite/sdk-generator)。
+
+### 服务端SDK与客户端SDK有何不同？
+
+#### 身份验证
+
+客户端和服务器端 SDK 之间的主要区别在于身份验证机制。服务器端 SDK 使用作用域 API 密钥来访问 Appwrite API，而客户端 SDK 则依赖安全 cookie 进行身份验证。
+
+#### 范围
+
+第二个主要区别是允许客户端和服务器端 SDK 访问的范围。范围限制了您可以使用 SDK 完成的任务类型。服务器端 SDK 提供了更多功能和灵活性，并允许您控制 Appwrite 的更多方面。使用您的 API 密钥，您可以使用您选择的 SDK 访问 Appwrite 服务。
+
+要创建新的 API 密钥，请使用 Appwrite 控制台转到项目设置中的 API 密钥选项卡，然后单击“添加 API 密钥”按钮。添加新的 API 密钥时，您可以选择要授予应用程序的范围。最佳做法是仅允许满足项目目标所需的权限。如果您需要替换 API 密钥，请创建一个新密钥，更新您的应用凭据，并在准备好后删除旧密钥。
+
+在服务器端使用带有 API 密钥的 Appwrite API 时，您将自动以`admin mode`运行。管理员模式禁用默认的[用户权限访问控制](https://appwrite.io/docs/permissions)限制，并允许您访问项目中的所有服务器资源（文档、用户、集合、文件、团队），无论读写权限如何。当您想要操作用户的数据（如文件和文档）或者甚至想要获取用户列表时，这非常有用。
+
+> 不建议从客户端运行管理模式，因为这会导致巨大的隐私和安全风险。查看管理模式文档以了解更多信息。
+
+下表很好地展示了您可以使用客户端和服务器端 SDK 做什么和不能做什么，并且很好地总结了我们所涵盖的内容。
+
+| 名称 | 描述 | 服务端 | 客户端 |
+| --- | --- | --- | --- |
+| account | 代表当前登录用户的读写权限 | ❌ | ✅ |
+| users.read | 有权读取您的项目的用户 | ✅ | ❌ |
+| users.write | 拥有创建、更新和删除项目用户的权限 | ✅ | ❌ |
+| teams.read | 有权读取您的项目团队 | ✅ | ✅ |
+| teams.write | 拥有创建、更新和删除项目团队的权限 | ✅ | ✅ |
+| collections.read | 有权读取项目的数据库集合 | ✅ | ❌ |
+| collections.write | 有权创建、更新和删除项目的数据库集合 | ✅ | ❌ |
+| documents.read | 有权读取您项目的数据库文档 | ✅ | ✅ |
+| documents.write | 有权创建、更新和删除项目的数据库文档 | ✅ | ✅ |
+| files.read | 有权读取项目的存储文件和预览图像 | ✅ | ✅ |
+| files.write | 有权创建、更新和删除项目的存储文件 | ✅ | ✅ |
+| functions.read | 有权读取项目的函数和代码标签 | ✅ | ❌ |
+| functions.write | 有权创建、更新和删除项目的函数和代码标签 | ✅ | ❌ |
+| execution.read | 有权读取项目的执行日志 | ✅ | ✅ |
+| execution.write | 有权执行您的项目功能 | ✅ | ✅ |
+| locale.read | 有权访问您项目的 Locale 服务 | ✅ | ✅ |
+| avatars.read | 有权访问您项目的 Avatars 服务 | ✅ | ✅ |
+| health.read | 有权读取您的项目的健康状态 | ✅ | ❌ |
+
+### 入门
+
+开始使用服务器端 SDK 并发出第一个请求非常简单。对于本示例，我们将选择 Deno SDK - 同样的原则也适用于所有其他 SDK。
+
+前往您的 Appwrite Dashboard 并**创建**一个新项目。为您的项目命名，然后单击“创建”开始。创建项目后，转到 **API 密钥**部分并创建一个具有所需范围的密钥（确保它具有 `users.read` 和 `users.write` 范围，因为示例依赖于此）。复制此密钥，因为我们将在下一步中需要它。还要记下您的**项目 ID** 和 **API Endpoint**，它们可以在 Appwrite 仪表板的“**设置**”部分下找到。
+
+![](https://res.cloudinary.com/neroblackstone/image/upload/v1624879340/appwrite_project_settings_evshwq.png)
+
+是时候初始化您的 SDK 并发出您的第一个请求了。填写您在上一步中复制的所有值。然后我们将尝试使用 Appwrite SDK 创建一个用户。
