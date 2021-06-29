@@ -135,3 +135,29 @@ Appwrite 支持 6 个服务器端 SDK。所有的 SDK 都是根据 API 的 Swagg
 ![](https://res.cloudinary.com/neroblackstone/image/upload/v1624879340/appwrite_project_settings_evshwq.png)
 
 是时候初始化您的 SDK 并发出您的第一个请求了。填写您在上一步中复制的所有值。然后我们将尝试使用 Appwrite SDK 创建一个用户。
+
+``` ts
+import * as sdk from "https://deno.land/x/appwrite/mod.ts";
+
+let client = new sdk.Client();
+
+client
+    .setEndpoint('https://[HOSTNAME_OR_IP]/v1') // Your API Endpoint
+    .setProject('5df5acd0d48c2') // Your project ID
+    .setKey('919c2d18fb5d4...a2ae413da83346ad2') // Your secret API key
+    .setSelfSigned() // Use only on dev mode with a self-signed SSL cert
+;
+let users = new sdk.Users(client);
+
+let promise = users.create('email@example.com', 'password');
+
+promise.then(function (response) {
+    console.log(response);
+}, function (error) {
+    console.log(error);
+});
+```
+
+这是您使用 Appwrite 的服务器端 SDK 的第一个请求！如果您想以我们支持的其他语言查看此示例，可以在[此处](https://appwrite.io/docs/getting-started-for-server)查看。
+
+如果您喜欢冒险并且想使用您最喜欢的 HTTP 请求库来使用 Appwrite API，那么[本指南](https://dev.to/eldadfux/learn-how-you-can-take-advantage-of-the-appwrite-api-without-using-any-sdk-a41)就是为此而编写的！
