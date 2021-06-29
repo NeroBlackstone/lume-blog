@@ -1,59 +1,35 @@
+---
 title: Welcome to my blog !
-description: (其实这只是个笔记本啦~~)
+description: "(其实这只是个笔记本啦~~)"
 author:
-  # url is important, be sure replace url before deployment
   url: https://neroblackstone-blog.pages.dev/
   name: Nero Blackstone
   bio: Another scum
-  # recommended resolution: 512x512,1:1
   photoPath: https://res.cloudinary.com/neroblackstone/image/upload/v1624180735/zeke_ao5xno.webp
-  # If you dont have social media just add # to comment that line.
   twitter: https://twitter.com/Fl0ydCampbell
   youtube: https://odysee.com/@NeroBlackstone:b
   github: https://github.com/NeroBlackstone
   email: gf7600gs@gmail.com
 footer: 
-
-friends: 
-  - 
-    name: SgDylan
-    photoPath: https://res.cloudinary.com/neroblackstone/image/upload/v1624180746/SgDylan_qmbdo3.webp
-    bio: 是喵喵喵!
-    link: https://blog.sgdylan.com/
-  - 
-    name: Oscar Otero
-    photoPath: https://res.cloudinary.com/neroblackstone/image/upload/v1624180746/Oscar_cakgrj.webp
-    bio: Web designer and developer, maintainer of lume
-    link: https://oscarotero.com/
-
-# How many posts in your archive page.
-postsPerPage : 5
-# How many posts in your main page.
-indexPostNum : 5
-
-# Enable dark mode according system settings.
-autoDarkMode : false
-# Use dark mode or light mode only, only available when autoDarkMode is false
-# if value is false, use light theme only
-# if value is true, dark theme only
-darkMode : true
-
-# Go https://disqus.com/admin/create/ create a new site
-disqus: 
+friends:
+- name: SgDylan
+  photoPath: https://res.cloudinary.com/neroblackstone/image/upload/v1624180746/SgDylan_qmbdo3.webp
+  bio: 是喵喵喵!
+  link: https://blog.sgdylan.com/
+- name: Oscar Otero
+  photoPath: https://res.cloudinary.com/neroblackstone/image/upload/v1624180746/Oscar_cakgrj.webp
+  bio: Web designer and developer, maintainer of lume
+  link: https://oscarotero.com/
+postsPerPage: "5"
+indexPostNum: "5"
+autoDarkMode: false
+darkMode: true
+disqus:
   enable: true
-  # this is shortname of your disqus site
-  # for example : the disqus site admin url is https://myblog.disqus.com/admin/
-  # the short name is: myblog
-  # detial:https://help.disqus.com/en/articles/1717111-what-s-a-shortname
   shortname: neroblackstones-blog
-
-# Go https://dash.cloudflare.com/ -> Web Analytics. Get token in js Snippet.
 cloudflareWebAnalytics:
   enable: true
   token: 5419c068361b4a1abf6d673ce3a1a7fe
-
-# Lume version this template should work.
-# Check lume-blog-muse github repository to get template for newer lume.
 version:
-  lume: 0.23.3
+  lume: 0.24.0
   bulma: 0.9.3
