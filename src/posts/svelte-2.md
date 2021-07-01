@@ -1,6 +1,6 @@
 ---
 title: Svelte学习笔记（三）
-description: 声明
+description: 声明响应式变量和属性，更新数组和对象
 date: 2021-07-01
 img: https://res.cloudinary.com/neroblackstone/image/upload/v1625101749/svelte_y2yhr6.png
 tags: []
