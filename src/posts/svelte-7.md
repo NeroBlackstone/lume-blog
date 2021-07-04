@@ -1,6 +1,6 @@
 ---
 title: Svelte学习笔记（八）
-description: 绑定
+description: 绑定，数据输入，复选框，输入组
 date: 2021-07-04
 img: https://res.cloudinary.com/neroblackstone/image/upload/v1625101749/svelte_y2yhr6.png
 tags:
