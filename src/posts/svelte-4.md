@@ -1,6 +1,6 @@
 ---
 title: Svelte学习笔记（五）
-description: else-if块
+description: else-if块，each块与键
 date: 2021-07-03
 img: https://res.cloudinary.com/neroblackstone/image/upload/v1625101749/svelte_y2yhr6.png
 tags:
@@ -63,7 +63,7 @@ tags:
 
 如果你愿意，你可以使用解构——`each cats as { id, name }` —— 并用 `id` 和 `name` 替换 cat.id 和 cat.name。
 
-## 
+## 键
 
 默认情况下，当您修改 `each` 块的值时，它将在块的末尾添加和删除项目，并更新任何已更改的值。那可能不是您想要的。
 
