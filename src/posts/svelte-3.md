@@ -1,6 +1,6 @@
 ---
 title: Svelte学习笔记（四）
-description: ''
+description: tick，writable store
 date: 2021-07-06
 img: https://res.cloudinary.com/neroblackstone/image/upload/v1625101749/svelte_y2yhr6.png
 tags:
@@ -60,4 +60,90 @@ tags:
 
 ## Stores 
 
+### writable store
+
 并非所有应用程序状态都属于应用程序的组件层次结构。有时，您的值需要由多个不相关的组件或常规 JavaScript 模块访问。
+
+在 Svelte，我们通过商店来做到这一点。 store 只是一个带有 `subscribe` 方法的对象，它允许在 store 值发生变化时通知感兴趣的各方。在 `App.svelte` 中，`count` 是一个 store，我们在 `count.subscribe` 回调中设置了 `count_value`。
+
+``` html
+<!-- App.svelte -->
+<script>
+	import { count } from './stores.js';
+	import Incrementer from './Incrementer.svelte';
+	import Decrementer from './Decrementer.svelte';
+	import Resetter from './Resetter.svelte';
+
+	let count_value;
+
+	const unsubscribe = count.subscribe(value => {
+		count_value = value;
+	});
+</script>
+
+<h1>The count is {count_value}</h1>
+
+<Incrementer/>
+<Decrementer/>
+<Resetter/>
+```
+
+单击`stores.js` 选项卡以查看`count` 的定义。它是一个writable store，这意味着它除了 `subscribe` 之外还有 `set` 和 `update` 方法。
+
+``` js
+//stores.js
+import { writable } from 'svelte/store';
+
+export const count = writable(0);
+```
+
+现在转到 `Incrementer.svelte` 选项卡，以便我们可以连接 `+` 按钮：
+
+``` html
+<!-- Incrementer.svelte -->
+<script>
+	import { count } from './stores.js';
+
+	function increment() {
+		count.update(n => n + 1);
+	}
+</script>
+
+<button on:click={increment}>
+	+
+</button>
+```
+
+单击 `+` 按钮现在应该更新计数。对 `Decrementer.svelte` 执行逆操作。
+
+``` html
+<!-- Decrementer.svelte -->
+<script>
+	import { count } from './stores.js';
+
+	function decrement() {
+		count.update(n => n - 1);
+	}
+</script>
+
+<button on:click={decrement}>
+	-
+</button>
+```
+
+最后，在`Resetter.svelte`中，实现`reset`：
+
+``` html
+<!-- Resetter.svelte -->
+<script>
+	import { count } from './stores.js';
+
+	function reset() {
+		count.set(0);
+	}
+</script>
+
+<button on:click={reset}>
+	reset
+</button>
+```
