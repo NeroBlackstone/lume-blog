@@ -1,6 +1,6 @@
 ---
 title: Svelte学习笔记（三）
-description: ''
+description: 添加参数
 date: 2021-07-09
 img: https://res.cloudinary.com/neroblackstone/image/upload/v1625101749/svelte_y2yhr6.png
 tags:
@@ -78,3 +78,50 @@ export function longpress(node, duration) {
 ```
 
 > 如果您需要将多个参数传递给一个动作，请将它们组合成一个对象，如使用：`longpress={{duration, spiciness}}` 。
+
+## Classes
+
+与任何其他属性一样，您可以使用 JavaScript 属性指定类，如下所示：
+
+``` html
+<button
+	class="{current === 'foo' ? 'selected' : ''}"
+	on:click="{() => current = 'foo'}"
+>foo</button>
+```
+
+这是 UI 开发中的一种常见模式，以至于 Svelte 包含一个特殊指令来简化它：
+
+每当表达式的值为真时，`selected`的类就会添加到元素中，而当它为假时，则将其移除。
+
+``` html
+<script>
+	let current = 'foo';
+</script>
+
+<button
+	class:selected="{current === 'foo'}"
+	on:click="{() => current = 'foo'}"
+>foo</button>
+
+<button
+	class:selected="{current === 'bar'}"
+	on:click="{() => current = 'bar'}"
+>bar</button>
+
+<button
+	class:selected="{current === 'baz'}"
+	on:click="{() => current = 'baz'}"
+>baz</button>
+
+<style>
+	button {
+		display: block;
+	}
+
+	.selected {
+		background-color: #ff3e00;
+		color: white;
+	}
+</style>
+```
