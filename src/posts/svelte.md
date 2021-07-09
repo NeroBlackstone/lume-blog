@@ -1400,3 +1400,21 @@ let menu = [
 现在，当用户与键盘交互时，父组件中的 `pin` 值会立即更新。
 
 > 谨慎使用组件绑定。如果您的应用程序中的数据流过多，则很难跟踪应用程序周围的数据流，尤其是在没有“单一事实来源”的情况下。
+
+### 绑定元素实例
+
+正如您可以绑定到 DOM 元素一样，您也可以绑定到组件实例本身。例如，我们可以将 `<InputField>` 的实例绑定到一个名为 `field` 的 prop，就像绑定 DOM Elements 时所做的那样:
+
+``` html
+<InputField bind:this={field} />
+```
+
+现在我们可以使用 `field` 以编程方式与这个组件交互。
+
+``` html
+<button on:click="{() => field.focus()}">
+	Focus field
+</button>
+```
+
+> 请注意，我们不能执行 `{field.focus}` ，因为在第一次呈现按钮并引发错误时 field 是未定义的。
