@@ -54,3 +54,111 @@ tags:
 	</svelte:fragment>
 </Box>
 ```
+
+## 模块上下文
+
+在我们目前看到的所有示例中， `<script>` 块包含在每个组件实例初始化时运行的代码。对于绝大多数组件，这就是您所需要的。
+
+偶尔，您需要在单个组件实例之外运行一些代码。例如，您可以同时播放所有五个音频播放器；如果玩一个停止所有其他人会更好。
+
+我们可以通过声明一个 `<script context="module">` 块来做到这一点。包含在其中的代码将在模块首次评估时运行一次，而不是在实例化组件时运行。将它放在 `AudioPlayer.svelte` 的顶部：
+
+现在组件可以在没有任何状态管理的情况下相互“交谈”：
+
+``` html
+<!-- AudioPlayer.svelte -->
+<script context="module">
+	let current;
+</script>
+
+<script>
+	export let src;
+	export let title;
+	export let composer;
+	export let performer;
+
+	let audio;
+	let paused = true;
+
+	function stopOthers() {
+		if (current && current !== audio) current.pause();
+		current = audio;
+	}
+</script>
+
+<article class:playing={!paused}>
+	<h2>{title}</h2>
+	<p><strong>{composer}</strong> / performed by {performer}</p>
+
+	<audio
+		bind:this={audio}
+		bind:paused
+		on:play={stopOthers}
+		controls
+		{src}
+	></audio>
+</article>
+
+<style>
+	article {
+		margin: 0 0 1em 0; max-width: 800px;
+	}
+	h2, p {
+		margin: 0 0 0.3em 0;
+	}
+	audio {
+		width: 100%; margin: 0.5em 0 1em 0;
+	}
+	.playing {
+		color: #ff3e00;
+	}
+</style>
+```
+
+``` html
+<!-- App.svelte -->
+<script>
+	import AudioPlayer from './AudioPlayer.svelte';
+</script>
+
+<!-- https://musopen.org/music/9862-the-blue-danube-op-314/ -->
+<AudioPlayer
+	src="https://sveltejs.github.io/assets/music/strauss.mp3"
+	title="The Blue Danube Waltz"
+	composer="Johann Strauss"
+	performer="European Archive"
+/>
+
+<!-- https://musopen.org/music/43775-the-planets-op-32/ -->
+<AudioPlayer
+	src="https://sveltejs.github.io/assets/music/holst.mp3"
+	title="Mars, the Bringer of War"
+	composer="Gustav Holst"
+	performer="USAF Heritage of America Band"
+/>
+
+<!-- https://musopen.org/music/8010-3-gymnopedies/ -->
+<AudioPlayer
+	src="https://sveltejs.github.io/assets/music/satie.mp3"
+	title="Gymnopédie no. 1"
+	composer="Erik Satie"
+	performer="Prodigal Procrastinator"
+/>
+
+<!-- https://musopen.org/music/2567-symphony-no-5-in-c-minor-op-67/ -->
+<AudioPlayer
+	src="https://sveltejs.github.io/assets/music/beethoven.mp3"
+	title="Symphony no. 5 in Cm, Op. 67 - I. Allegro con brio"
+	composer="Ludwig van Beethoven"
+	performer="European Archive"
+/>
+
+<!-- https://musopen.org/music/43683-requiem-in-d-minor-k-626/ -->
+<AudioPlayer
+	src="https://sveltejs.github.io/assets/music/mozart.mp3"
+	title="Requiem in D minor, K. 626 - III. Sequence - Lacrymosa"
+	composer="Wolfgang Amadeus Mozart"
+	performer="Markus Staab"
+/>
+```
+
