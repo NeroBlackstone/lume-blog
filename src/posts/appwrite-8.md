@@ -89,3 +89,59 @@ promise.then(function (response) {
 ```
 
 我们将在我们的博客应用程序中添加支持以邀请用户加入团队！
+
+## 服务器 SDK
+
+该函数的服务器版本看起来与客户端版本非常相似，但这里的主要区别在于使用具有 `team.read` 和 `team.write` 范围的 API 密钥。此函数创建一个团队，但与 Client SDK 不同的是，该团队还没有成员。
+
+``` js
+const sdk = require('node-appwrite');
+
+// Init SDK
+let client = new sdk.Client();
+
+let teams = new sdk.Teams(client);
+
+client
+    .setEndpoint('https://[HOSTNAME_OR_IP]/v1') // Your API Endpoint
+    .setProject('5df5acd0d48c2') // Your project ID
+    .setKey('919c2d18fb5d4...a2ae413da83346ad2') // Your secret API key
+;
+
+let promise = teams.create('Really Cool Team');
+
+promise.then(function (response) {
+    console.log(response);
+}, function (error) {
+    console.log(error);
+});
+```
+
+我们需要使用 `createMembership()` 的服务器版本明确地向这个团队添加成员。这里的参数和Client版本完全一样。
+
+``` js
+const sdk = require('node-appwrite');
+
+// Init SDK
+let client = new sdk.Client();
+
+let teams = new sdk.Teams(client);
+
+client
+    .setEndpoint('https://[HOSTNAME_OR_IP]/v1') // Your API Endpoint
+    .setProject('5df5acd0d48c2') // Your project ID
+    .setKey('919c2d18fb5d4...a2ae413da83346ad2') // Your secret API key
+;
+
+let promise = teams.createMembership('[TEAM_ID]', 'email@example.com', '', ['owner'], 'https://example.com/acceptTeamInvite');
+
+promise.then(function (response) {
+    console.log(response);
+}, function (error) {
+    console.log(error);
+});
+```
+
+当新成员从服务器添加到团队时，不需要电子邮件验证，因此在这种情况下不会发送电子邮件。
+
+您现在知道如何从客户端和服务器为您的团队创建和新成员。
