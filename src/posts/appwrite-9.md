@@ -274,3 +274,25 @@ deleteMembership: (teamId, inviteId) =>
 * 允许用户向团队添加新成员
 * 允许用户从团队中删除成员。
 * 允许用户删除团队。
+
+## 创建一个页面来接受团队成员资格
+
+当我们单击 `➕ 添加成员`按钮时，会向受邀者发送一封带有邀请链接的电子邮件。该链接应重定向回您的应用程序，您需要在其中调用 [Update Membership status ](https://appwrite.io/docs/client/teams#teamsUpdateMembershipStatus)方法以确认会员资格。在我们的例子中，该链接会将用户带到 `https://<your domain>/#/acceptMembership`。对于已经在您的应用中拥有帐户的用户，它只需将他们添加到团队中即可。对于新用户，除了将他们添加到团队之外，它还为他们创建一个新帐户。
+
+创建一个新文件 `src/routes/AcceptMembership.svelte` 并在 `<script>` 部分添加以下代码：
+
+``` html
+<script>
+    import { api } from "../appwrite";
+    let urlSearchParams = new URLSearchParams(window.location.search);
+    let inviteId = urlSearchParams.get("inviteId");
+    let secret = urlSearchParams.get("secret");
+    let teamId = urlSearchParams.get("teamId");
+    let userId = urlSearchParams.get("userId");
+    api.updateMembership(teamId, inviteId, userId, secret).then(() => {
+        window.location = "/"
+    });
+</script> 
+```
+
+就像那样，您现在可以在您的应用程序中创建和管理团队！
