@@ -149,3 +149,139 @@ export const api = {
     },
 }
 ```
+
+这将在调用时在 **Profile** 集合中创建一个文档。如您所见，第二个参数是一个遵守我们在第 16 天创建的收集规则的对象。
+
+之后，`readwrite`权限就通过了。由于我们希望每个人都能够查看此配置文件，但只有用户自己才能对其进行编辑 - 读取权限为 *，写入权限为用户本身。
+
+现在我们已经准备好了所有的 Appwrite 通信逻辑，我们现在需要为其添加路由和组件。为此，我们创建将显示配置文件的 `src/routes/Profile.svelte` 文件。
+
+``` html
+// src/routes/Profile.svelte
+<script>
+    import Loading from "../lib/Loading.svelte";
+
+    import { api } from "../appwrite";
+    import { state } from "../store";
+
+    export let params = {};
+
+    const fetchUser = api.fetchUser(params.id);
+</script>
+
+<section>
+    {#await fetchUser}
+        <Loading />
+    {:then author}
+        <section class="author">
+            <h3>{author.name}</h3>
+        </section>
+        {#if $state.user.$id == params.id}
+            <h1>My Posts</h1>
+            <section class="my-post">
+                TBD
+            </section>
+        {:else}
+            <h1>Latest Posts</h1>
+            <section class="latest">
+                TBD
+            </section>
+        {/if}
+    {:catch error}
+        {error}
+        <p>
+            Public profile not found
+            <a href="#/profile/create">Create Public Profile</a>
+        </p>
+    {/await}
+</section>
+
+<style>
+    section.author {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    section.latest {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: auto;
+        align-content: start;
+        gap: 1rem;
+    }
+    section.my-post {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: auto;
+        align-content: start;
+        gap: 0.5rem;
+    }
+    a {
+        border: none;
+        padding: 10px;
+        color: white;
+        font-weight: bold;
+    }
+    a:hover {
+        text-decoration: underline;
+    }
+</style>
+```
+
+当我们发现错误时，我们会提示用户创建他们的个人资料并将他们导航到`#/profile/create`。由于尚未创建此路由，请创建一个名为 `src/routes/CreateProfile.svelte` 的新文件。和之前一样，我们将在 `src/App.svelte` 中将该组件引入路由器：
+
+``` js
+//src/App.svelte
+
+import CreateProfile from "./routes/CreateProfile.svelte";  
+// First import the svelte component
+
+const routes = {
+    //...
+    "/profile/create": CreateProfile, // Add this component
+    //...
+  };
+```
+
+现在我们需要处理 `CreateProfile.svelte` 文件：
+
+``` html
+<script>
+    import { state } from "../store";
+    import { api } from "../appwrite";
+    import { replace } from "svelte-spa-router";
+    let name = $state.user.name;
+    const submit = async () => {
+        try {
+            await api.createUser($state.user.$id, name);
+            replace(`/profile/${$state.user.$id}`);
+        } catch (error) {
+            console.log(error.message);
+        }
+    };
+</script>
+
+<form on:submit|preventDefault={submit}>
+    {#if $state.user}
+        <label for="name">Display Name</label>
+        <input type="text" name="name" bind:value={name} />
+        <button class="button" type="submit">Create</button>
+    {/if}
+</form>
+
+<style>
+    form {
+        margin: auto;
+        width: 500;
+        display: flex;
+        flex-direction: column;
+    }
+</style>
+```
+
+这是一个简单的表单，用户可以在其中输入他的个人资料名称并创建它！
+
+我们现在已经使用我们之前创建的数据库和集合向我们的应用程序添加了用户配置文件。
