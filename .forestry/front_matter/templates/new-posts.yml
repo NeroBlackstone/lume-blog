@@ -30,6 +30,7 @@ fields:
 pages:
 - src/posts/appwrite-1.md
 - src/posts/appwrite-2.md
+- src/posts/appwrite-3.md
 - src/posts/appwrite.md
 - src/posts/github.md
 - src/posts/svelte-1.md
