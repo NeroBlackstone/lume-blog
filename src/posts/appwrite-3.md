@@ -238,3 +238,102 @@ FutureBuilder(
 );
 ```
 
+### 文件下载
+
+我们可以发出 **GET** `<ENDPOINT>/storage/files/{fileId}/download` 请求以通过其唯一 ID 获取文件的内容。端点响应包含一个 `Content-Disposition:` `attachment`标头，它告诉浏览器开始将文件下载到用户下载目录。此方法公开为 `storage.getFileDownload()`，并且需要一个 `fileId`。
+
+使用 Web SDK：
+
+``` js
+let sdk = new Appwrite();
+
+sdk
+    .setEndpoint('https://[HOSTNAME_OR_IP]/v1') // Your API Endpoint
+    .setProject('5df5acd0d48c2') // Your project ID
+;
+
+let result = sdk.storage.getFileDownload('[FILE_ID]');
+
+console.log(result); // Resource URL
+```
+
+使用Flutter：
+
+``` dart
+import 'package:appwrite/appwrite.dart';
+
+void main() { // Init SDK
+  Client client = Client();
+  Storage storage = Storage(client);
+
+  client
+    .setEndpoint('https://[HOSTNAME_OR_IP]/v1') // Your API Endpoint
+    .setProject('5df5acd0d48c2') // Your project ID
+  ;
+}
+
+//displaying image
+FutureBuilder(
+  future: storage.getFileDownload(
+    fileId: '[FILE_ID]',
+  ),
+  builder: (context, snapshot) {
+    return snapshot.hasData && snapshot.data != null
+      ? Image.memory(
+          snapshot.data.data,
+        )
+      : CircularProgressIndicator();
+  },
+);
+```
+
+### 文件查看
+
+我们可以发出 **GET** `<ENDPOINT>/storage/files/{fileId}/view` 请求以通过其唯一 ID 获取文件的内容。此端点类似于下载方法，但返回时没有 `Content-Disposition:attachment`标头。
+
+使用 Web SDK：
+
+``` js
+let sdk = new Appwrite();
+
+sdk
+    .setEndpoint('https://[HOSTNAME_OR_IP]/v1') // Your API Endpoint
+    .setProject('5df5acd0d48c2') // Your project ID
+;
+
+let result = sdk.storage.getFileView('[FILE_ID]');
+
+console.log(result); // Resource URL
+```
+
+使用Flutter：
+
+``` dart
+import 'package:appwrite/appwrite.dart';
+
+void main() { // Init SDK
+  Client client = Client();
+  Storage storage = Storage(client);
+
+  client
+    .setEndpoint('https://[HOSTNAME_OR_IP]/v1') // Your API Endpoint
+    .setProject('5df5acd0d48c2') // Your project ID
+  ;
+}
+
+//displaying image
+FutureBuilder(
+  future: storage.getFileView(
+    fileId: '[FILE_ID]',
+  ),
+  builder: (context, snapshot) {
+    return snapshot.hasData && snapshot.data != null
+      ? Image.memory(
+          snapshot.data.data,
+        )
+      : CircularProgressIndicator();
+  },
+);
+```
+
+有关存储服务的更多详细信息，请参见我们的[文档](https://appwrite.io/docs/client/storage)。
