@@ -1,6 +1,6 @@
 ---
 title: Appwrite学习笔记(四)
-description: ''
+description: 用于生产环境的Appwrite
 date: 2021-07-31
 img: https://res.cloudinary.com/neroblackstone/image/upload/v1624671830/appwrite_i2voda.webp
 tags:
@@ -332,3 +332,27 @@ cd docker-telegraf
 [[inputs.processes]]
 [[inputs.kernel]]
 ```
+
+现在我们需要使用我们所做的更改构建一个新的 Docker 镜像。
+
+一旦这个构建完成，我们就可以在主 Appwrite `docker-compose.yml` 中使用我们新的 `Telegraf-local` 镜像。将[第 434 行](https://github.com/appwrite/appwrite/blob/master/docker-compose.yml#L434)中的 `appwrite/telegraf:1.1.0` 图像替换为我们的 `Telegraf-local` 镜像。
+
+``` yml
+  telegraf:
+    image: telegraf-local
+    container_name: appwrite-telegraf
+    networks:
+      - appwrite
+```
+
+现在从您的 appwrite 目录运行 `docker-compose up -d --remove-orphans` 以重新启动您的服务。
+
+现在转到您的 Grafana 仪表板并以与上一个相同的方式导入这个[新仪表板](https://grafana.com/grafana/dashboards/5955)，如果一切顺利，您应该会看到以下仪表板！
+
+![](https://res.cloudinary.com/neroblackstone/image/upload/v1627964190/appwrite_Server_Metrics_fyfxdb.png)
+
+![](https://res.cloudinary.com/neroblackstone/image/upload/v1627964201/appwrite_Server_Metrics2_mqs1qs.png)
+
+![](https://res.cloudinary.com/neroblackstone/image/upload/v1627964222/appwrite_Server_Metrics3_yqcc9r.png)
+
+就像那样，您现在可以在一个地方访问所有服务器信息！这只是冰山一角！ Grafana 有更多惊人的功能。它是完全开源的，支持 30 多个数据源，支持警报等。您可以设置自定义警报，Grafana 将持续评估并向 Slack、PagerDuty、VictorOps 和 OpsGenie 等系统发送通知。您可以在专门的[教程部分](https://grafana.com/tutorials/)了解有关 Grafana 的所有功能的更多信息。
