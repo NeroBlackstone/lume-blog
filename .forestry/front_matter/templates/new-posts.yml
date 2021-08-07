@@ -36,5 +36,6 @@ pages:
 - src/posts/svelte-1.md
 - src/posts/svelte-2.md
 - src/posts/svelte.md
+- src/posts/sveltekit.md
 - src/posts/yarn-set-version-berry.md
 - src/posts/受保护分支的最佳实践.md
