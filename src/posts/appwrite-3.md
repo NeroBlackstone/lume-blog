@@ -315,7 +315,7 @@ cd docker-telegraf
 
 我们需要为收集器提供更多指标。将以下行添加到[第 83 行](https://github.com/appwrite/docker-telegraf/blob/master/telegraf.conf#L83)
 
-``` conf
+```
 [[inputs.cpu]]
     percpu = true
     totalcpu = true
