@@ -1,6 +1,5 @@
 import lume from "lume/mod.ts";
 import date from "lume/plugins/date.ts";
-import postcss from "lume/plugins/postcss.ts";
 import code_highlight from "lume/plugins/code_highlight.ts";
 import base_path from "lume/plugins/base_path.ts";
 import { parse } from "https://deno.land/std/encoding/yaml.ts";
@@ -33,7 +32,6 @@ site.copy("midi")
 site.copy("favicon.ico");
 site.copy("favicon-32x32.png");
 
-site.use(postcss());
 site.use(date());
 site.use(code_highlight());
 site.use(base_path());
