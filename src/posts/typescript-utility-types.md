@@ -169,7 +169,97 @@ type T2 = Exclude<string | number | (() => void), Function>;
      
 type T2 = string | number
 ```
+  
+## Extract<Type, Union>
+  
+通过从 `Type` 中提取可分配给 `Union` 的所有联合成员来构造一个类型。
+  
+``` ts
+type T0 = Extract<"a" | "b" | "c", "a" | "f">;
+     
+type T0 = "a"
+type T1 = Extract<string | number | (() => void), Function>;
+     
+type T1 = () => void
+```
+  
+## NonNullable<Type>
 
+通过从 `Type` 中排除 `null` 和 `undefined` 来构造一个类型。
+  
+``` ts
+type T0 = NonNullable<string | number | undefined>;
+     
+type T0 = string | number
+type T1 = NonNullable<string[] | null | undefined>;
+     
+type T1 = string[]
+```
+
+## Parameters<Type>
+
+根据函数类型 `Type` 的参数中使用的类型构造元组类型。
+
+``` ts
+declare function f1(arg: { a: number; b: string }): void;
+ 
+type T0 = Parameters<() => string>;
+     
+type T0 = []
+type T1 = Parameters<(s: string) => void>;
+     
+type T1 = [s: string]
+type T2 = Parameters<<T>(arg: T) => T>;
+     
+type T2 = [arg: unknown]
+type T3 = Parameters<typeof f1>;
+     
+type T3 = [arg: {
+    a: number;
+    b: string;
+}]
+type T4 = Parameters<any>;
+     
+type T4 = unknown[]
+type T5 = Parameters<never>;
+     
+type T5 = never
+type T6 = Parameters<string>;
+//Type 'string' does not satisfy the constraint '(...args: any) => any'.
+     
+type T6 = never
+type T7 = Parameters<Function>;
+//Type 'Function' does not satisfy the constraint '(...args: any) => any'.
+  //Type 'Function' provides no match for the signature '(...args: any): any'.
+     
+type T7 = never
+```
+  
+## ConstructorParameters<Type>
+
+从构造函数类型的类型构造元组或数组类型。它生成一个包含所有参数类型的元组类型（或者如果 `Type` 不是函数，则类型 `never` ）。
+
+``` ts
+type T0 = ConstructorParameters<ErrorConstructor>;
+     
+type T0 = [message?: string]
+type T1 = ConstructorParameters<FunctionConstructor>;
+     
+type T1 = string[]
+type T2 = ConstructorParameters<RegExpConstructor>;
+     
+type T2 = [pattern: string | RegExp, flags?: string]
+type T3 = ConstructorParameters<any>;
+     
+type T3 = unknown[]
+ 
+type T4 = ConstructorParameters<Function>;
+//Type 'Function' does not satisfy the constraint 'abstract new (...args: any) => any'.
+  //Type 'Function' provides no match for the signature 'new (...args: any): any'.
+     
+type T4 = never
+```
+  
 ## 类型别名和接口之间的差异
 
 类型别名和接口非常相似，在很多情况下你可以自由选择它们。`interface`的几乎所有功能都可以在`type`中使用，关键区别在于无法重新打开类型以添加新属性与始终可扩展的接口。
@@ -240,3 +330,137 @@ type Window = {
 ```
   
 大多数情况下，您可以根据个人喜好进行选择，TypeScript 会告诉您是否需要其他类型的声明。如果您想要启发式，请使用 interface 直到您需要使用 type 中的功能。
+  
+## any和unknow类型的区别
+
+参考[stackoverflow](https://stackoverflow.com/questions/51439843/unknown-vs-any)
+  
+``` ts
+const a: any = 'a'; // OK
+const b: unknown = 'b' // OK
+
+const v1: string = a; // OK
+const v2: string = b; // ERROR
+const v3: string = b as string; // OK
+
+a.trim() // OK
+b.trim() // ERROR
+```
+  
+unknow用于描述未知的类型。即使用前要强制做type cheke。
+
+## Literal Types
+
+除了一般类型的`string`和`number`外，我们还可以在类型位置引用特定的字符串和数字。
+  
+考虑这一点的一种方法是考虑 JavaScript 如何以不同的方式声明变量。`var` 和 `let` 都允许更改变量中保存的内容，而 `const` 则不允许。这反映在 TypeScript 如何为文字创建类型上。
+  
+``` ts
+let changingString = "Hello World";
+changingString = "Olá Mundo";
+// Because `changingString` can represent any possible string, that
+// is how TypeScript describes it in the type system
+changingString;
+      
+let changingString: string
+ 
+const constantString = "Hello World";
+// Because `constantString` can only represent 1 possible string, it
+// has a literal type representation
+constantString;
+      
+const constantString: "Hello World"
+```
+  
+就其本身而言，文字类型并不是很有价值：
+  
+``` ts
+let x: "hello" = "hello";
+// OK
+x = "hello";
+// ...
+x = "howdy";
+Type '"howdy"' is not assignable to type '"hello"'.
+```
+  
+拥有一个只能有一个值的变量并没有多大用处！
+  
+但是通过将文字组合成联合，你可以表达一个更有用的概念——例如，只接受一组特定已知值的函数：
+  
+``` ts
+function printText(s: string, alignment: "left" | "right" | "center") {
+  // ...
+}
+printText("Hello, world", "left");
+printText("G'day, mate", "centre");
+Argument of type '"centre"' is not assignable to parameter of type '"left" | "right" | "center"'.
+```
+  
+数字文字类型的工作方式相同：
+  
+``` ts
+function compare(a: string, b: string): -1 | 0 | 1 {
+  return a === b ? 0 : a > b ? 1 : -1;
+}
+```
+  
+当然，您可以将这些与非文字类型结合使用：
+
+``` ts
+interface Options {
+  width: number;
+}
+function configure(x: Options | "auto") {
+  // ...
+}
+configure({ width: 100 });
+configure("auto");
+configure("automatic");
+//Argument of type '"automatic"' is not assignable to parameter of type 'Options | "auto"'.
+```
+  
+还有一种文字类型：布尔文字。只有两种布尔文字类型，正如您可能猜到的，它们是 `true` 和 `false` 类型。类型 `boolean` 本身实际上只是union `true | false`的别名。
+  
+### Literal Inference
+
+当您使用对象初始化变量时，TypeScript 假定该对象的属性稍后可能会更改值。例如，如果你写了这样的代码：
+  
+``` ts
+const obj = { counter: 0 };
+if (someCondition) {
+  obj.counter = 1;
+}
+```
+  
+TypeScript 不认为将 `1` 分配给以前为 `0` 的字段是错误的。另一种说法是 `obj.counter` 必须具有类型`number`，而不是 `0`，因为类型用于确定读取和写入行为。  
+
+这同样适用于字符串：  
+  
+``` ts
+const req = { url: "https://example.com", method: "GET" };
+handleRequest(req.url, req.method);
+//Argument of type 'string' is not assignable to parameter of type '"GET" | "POST"'.
+```
+  
+在上面的例子中，`req.method` 被推断为`string`，而不是`“GET”`。因为代码可以在 `req` 的创建和 `handleRequest` 的调用之间进行评估，它可以为 `req.method` 分配一个像`“GUESS”`这样的新字符串，TypeScript 认为这段代码有错误。
+  
+有两种方法可以解决这个问题。
+  
+1.您可以通过在任一位置添加类型断言来更改推理：
+``` ts
+// Change 1:
+const req = { url: "https://example.com", method: "GET" as "GET" };
+// Change 2
+handleRequest(req.url, req.method as "GET");
+```
+  
+更改 1 表示“我打算让 `req.method` 始终具有文字类型`“GET”`”，从而防止之后可能将`“GUESS”`分配给该字段。更改 2 的意思是“我知道出于其他原因 `req.method` 的值为`“GET”`”。
+
+2.您可以使用 `as const` 将整个对象转换为类型文字：
+  
+``` ts
+const req = { url: "https://example.com", method: "GET" } as const;
+handleRequest(req.url, req.method);
+```
+  
+`as const` 后缀的作用类似于 `const`，但对于类型系统，确保为所有属性分配文字类型，而不是更通用的版本，如string或number。
