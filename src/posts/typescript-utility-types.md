@@ -1,6 +1,6 @@
 ---
-title: TypeScript Utility Types 学习笔记
-description: ''
+title: TypeScript 补充学习笔记
+description: 以前学过，现在补上一些零碎知识
 date: 2021-08-07
 img: https://res.cloudinary.com/neroblackstone/image/upload/v1628328399/proxy-image_talsae.png
 tags:
@@ -548,7 +548,7 @@ handleRequest(req.url, req.method);
 
 有两种方法可以解决这个问题。
 
-1\.您可以通过在任一位置添加类型断言来更改推理：
+1. 您可以通过在任一位置添加类型断言来更改推理：
 
 ``` ts
 // Change 1:
@@ -559,7 +559,7 @@ handleRequest(req.url, req.method as "GET");
 
 更改 1 表示“我打算让 `req.method` 始终具有文字类型`“GET”`”，从而防止之后可能将`“GUESS”`分配给该字段。更改 2 的意思是“我知道出于其他原因 `req.method` 的值为`“GET”`”。
 
-2\.您可以使用 `as const` 将整个对象转换为类型文字：
+1. 您可以使用 `as const` 将整个对象转换为类型文字：
 
 ``` ts
 const req = { url: "https://example.com", method: "GET" } as const;
@@ -567,3 +567,164 @@ handleRequest(req.url, req.method);
 ```
 
 `as const` 后缀的作用类似于 `const`，但对于类型系统，确保为所有属性分配文字类型，而不是更通用的版本，如string或number。
+  
+## 索引签名
+
+有时您事先并不知道类型属性的所有名称，但您确实知道值的形状。
+  
+在这些情况下，您可以使用索引签名来描述可能值的类型，例如：
+  
+``` ts
+interface StringArray {
+  [index: number]: string;
+}
+ 
+const myArray: StringArray = getStringArray();
+const secondItem = myArray[1];
+          
+//const secondItem: string
+```
+  
+上面，我们有一个 `StringArray` 接口，它有一个索引签名。此索引签名指出，当 `StringArray` 用`number`索引时，它将返回一个字符串。
+  
+索引签名属性类型必须是“字符串”或“数字”。
+
+可以支持两种类型的索引器，但从数字索引器返回的类型必须是从字符串索引器返回的类型的子类型。这是因为当使用 `number` 进行索引时，JavaScript 实际上会在索引到对象之前将其转换为 `string`。这意味着使用`100`（一个`数字`）进行索引与使用`“100”`（一个`字符串`）进行索引是一样的，因此两者需要保持一致。
+  
+``` ts
+interface Animal {
+  name: string;
+}
+ 
+interface Dog extends Animal {
+  breed: string;
+}
+ 
+// Error: indexing with a numeric string might get you a completely separate type of Animal!
+interface NotOkay {
+  [x: number]: Animal;
+'number' index type 'Animal' is not assignable to 'string' index type 'Dog'.
+  [x: string]: Dog;
+}
+```
+  
+## 索引访问类型  
+
+我们可以使用索引访问类型来查找另一种类型的特定属性：
+
+``` ts
+type Person = { age: number; name: string; alive: boolean };
+type Age = Person["age"];
+     
+//type Age = number
+```
+  
+索引类型本身就是一种类型，因此我们可以完全使用 unions、`keyof` 或其他类型：
+
+``` ts
+type I1 = Person["age" | "name"];
+     
+//type I1 = string | number
+ 
+type I2 = Person[keyof Person];
+     
+//type I2 = string | number | boolean
+ 
+type AliveOrName = "alive" | "name";
+type I3 = Person[AliveOrName];
+     
+//type I3 = string | boolean
+```
+  
+## Keyof 类型运算符
+  
+keyof 运算符采用对象类型并生成其键的字符串或数字文字联合：
+  
+``` ts
+type Point = { x: number; y: number };
+type P = keyof Point;
+    
+//type P = keyof Point
+```
+  
+如果类型具有`string`或`number`索引签名，则 `keyof` 将返回这些类型：
+  
+``` ts
+type Arrayish = { [n: number]: unknown };
+type A = keyof Arrayish;
+    
+//type A = number
+ 
+type Mapish = { [k: string]: boolean };
+type M = keyof Mapish;
+    
+//type M = string | number
+```
+
+## 模板文字类型
+
+模板文字类型建立在[字符串文字类型](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#literal-types)之上，并且能够通过联合扩展为多个字符串。
+
+它们与 JavaScript 中的模板文字字符串具有相同的语法，但用于类型位置。当与具体文字类型一起使用时，模板文字通过连接内容产生新的字符串文字类型。
+  
+``` ts
+type World = "world";
+ 
+type Greeting = `hello ${World}`;
+        
+type Greeting = "hello world"
+```
+  
+当在插值位置使用联合时，类型是每个联合成员可以表示的每个可能的字符串文字的集合：  
+  
+``` ts
+type EmailLocaleIDs = "welcome_email" | "email_heading";
+type FooterLocaleIDs = "footer_title" | "footer_sendoff";
+ 
+type AllLocaleIDs = `${EmailLocaleIDs | FooterLocaleIDs}_id`;
+          
+//type AllLocaleIDs = "welcome_email_id" | "email_heading_id" | "footer_title_id" | "footer_sendoff_id"
+```
+  
+对于模板文字中的每个插值位置，联合交叉相乘：
+  
+``` ts
+type AllLocaleIDs = `${EmailLocaleIDs | FooterLocaleIDs}_id`;
+type Lang = "en" | "ja" | "pt";
+ 
+type LocaleMessageIDs = `${Lang}_${AllLocaleIDs}`;
+            
+//type LocaleMessageIDs = "en_welcome_email_id" | "en_email_heading_id" | "en_footer_title_id" | "en_footer_sendoff_id" | "ja_welcome_email_id" | "ja_email_heading_id" | "ja_footer_title_id" | "ja_footer_sendoff_id" | "pt_welcome_email_id" | "pt_email_heading_id" | "pt_footer_title_id" | "pt_footer_sendoff_id"
+```
+  
+我们通常建议人们对大型字符串联合使用提前生成，但这在较小的情况下很有用。
+  
+### 类型中的字符串联合
+  
+模板文字的强大之处在于根据类型中的现有字符串定义新字符串。
+  
+例如，JavaScript 中的一个常见模式是根据对象当前拥有的字段来扩展对象。我们将为函数提供一个类型定义，该函数增加了对 `on` 函数的支持，让您知道值何时发生变化：
+  
+``` ts
+const person = makeWatchedObject({
+  firstName: "Saoirse",
+  lastName: "Ronan",
+  age: 26,
+});
+ 
+person.on("firstNameChanged", (newValue) => {
+  console.log(`firstName was changed to ${newValue}!`);
+});
+```
+  
+请注意，在侦听事件“firstNameChanged”，而不仅仅是“firstName”时，模板文字提供了一种在类型系统内处理此类字符串操作的方法：
+  
+```ts
+type PropEventSource<Type> = {
+    on(eventName: `${string & keyof Type}Changed`, callback: (newValue: any) => void): void;
+};
+ 
+/// Create a "watched object" with an 'on' method
+/// so that you can watch for changes to properties.
+declare function makeWatchedObject<Type>(obj: Type): Type & PropEventSource<Type>;
+```
