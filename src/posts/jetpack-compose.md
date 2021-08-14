@@ -273,3 +273,237 @@ fun MyScreenContent(names: List<String> = listOf("Android", "there")) {
 ![](https://res.cloudinary.com/neroblackstone/image/upload/v1628843154/9ec1ce770c25da83_x0sbmd.png)
 
 ## Compose状态
+
+对状态变化做出反应是 Compose 的核心。 Compose 应用程序通过调用 Composable 函数将数据转换为 UI。如果您的数据发生变化，您可以使用新数据调用这些函数，从而创建更新的 UI。Compose 提供了用于观察应用数据变化的工具，这些工具会自动调用您的函数——这称为**重构/recomposing**。Compose 还会查看单个可组合组件需要哪些数据，以便它只需要重新组合数据已更改的组件，并且可以跳过组合未受影响的组件。
+
+在幕后，Compose 使用自定义 Kotlin 编译器插件，因此当底层数据发生变化时，可以重新调用可组合函数以更新 UI 层次结构。
+
+例如，当您在 `MyScreenContent` Composable 函数中调用 `Greeting("Android")` 时，您正在硬编码输入 ("Android")，所以 `Greeting` 将被添加到 UI 树中一次并且永远不会改变，即使 `MyScreenContent` 的主体被重新组合。
+
+要将内部状态添加到可组合，请使用 `mutableStateOf` 函数，该函数提供可组合的可变内存。为了不让每次重组都具有不同的状态，请使用 `remember` 记住可变状态。而且，如果在屏幕上的不同位置有多个可组合实例，每个副本将获得自己的状态版本。您可以将内部状态视为类中的私有变量。而且，如果在屏幕上的不同位置有多个可组合实例，每个副本将获得自己的状态版本。您可以将内部状态视为类中的私有变量。
+
+可组合函数将自动订阅它。如果状态发生变化，读取这些字段的可组合项将被重新组合。
+
+制作一个计数器来记录用户点击`按钮`的次数。将 `Counter` 定义为一个 Composable 函数，并带有一个 `Button` 来显示它被点击了多少次：
+
+> 注意：Compose 根据 [Material Design Buttons](https://material.io/develop/android/components/buttons/) 规范提供了不同类型的 Button——Button、OutlinedButton 和 TextButton。在您的情况下，您将使用一个具有文本的 Button 作为显示它被点击的次数的 Button 内容。
+
+由于 `Button` 读取的是 `count.value`，因此每当 `Button` 发生变化时都会重新组合并显示新的 `count` 值。
+
+您现在可以在屏幕上添加一个计数器：
+
+``` kotlin
+@Composable
+fun MyScreenContent(names: List<String> = listOf("Android", "there")) {
+    Column {
+        for (name in names) {
+            Greeting(name = name)
+            Divider(color = Color.Black)
+        }
+        Divider(color = Color.Transparent, thickness = 32.dp)
+        Counter()
+    }
+}
+```
+
+如果您在模拟器中运行该应用程序或单击交互式预览按钮 ，您可以看到 Counter 如何保持状态并在每次单击时增加。
+
+![](https://res.cloudinary.com/neroblackstone/image/upload/v1628923952/8766b5185e6476a5_jtcfba.gif)
+
+### 真相的来源
+
+在 Composable 函数中，应该公开对调用函数有用的状态，因为这是它可以被消费或控制的唯一方式——这个过程称为状态提升/**state hoisting**。
+
+状态提升是使内部状态可由调用它的函数控制的方法。您可以通过受控制的可组合函数的参数公开状态并从控制可组合函数的外部实例化它来实现此目的。使状态可提升可避免重复状态和引入错误，有助于重用可组合物，并使可组合物更易于测试。可组合调用者不感兴趣的状态应该是内部状态。
+
+在某些情况下，消费者可能不关心某个状态（例如，在滚动条中，`scrollerPosition` 状态是公开的，而 `maxPosition` 不是）。真相的来源属于创造和控制那个状态的人。
+
+在示例中，由于 `Counter` 的使用者可能对状态感兴趣，因此您可以通过引入 (count, updateCount) 对作为 Counter 的参数将其完全推迟到调用者。这样，Counter 就是在提升它的状态：
+
+``` kotlin
+@Composable
+fun MyScreenContent(names: List<String> = listOf("Android", "there")) {
+    val counterState = remember { mutableStateOf(0) }
+
+    Column {
+        for (name in names) {
+            Greeting(name = name)
+            Divider(color = Color.Black)
+        }
+        Divider(color = Color.Transparent, thickness = 32.dp)
+        Counter(
+            count = counterState.value,
+            updateCount = { newCount ->
+                counterState.value = newCount
+            }
+        )
+    }
+}
+
+@Composable
+fun Counter(count: Int, updateCount: (Int) -> Unit) {
+    Button(onClick = { updateCount(count+1) }) {
+        Text("I've been clicked $count times")
+    }
+}
+```
+
+## Flex布局
+
+您之前简要介绍过 `Column`，它用于按垂直顺序放置项目。同样，您可以使用 `Row` 水平放置项目。
+
+`Row`和`Column`将它们的项目一个接一个地放置。如果你想让一些项目变得灵活，让它们以一定的重量占据屏幕，你可以使用`weight`修饰符。
+
+假设您想将 `Button` 放在屏幕底部，而其他内容保留在顶部。您可以通过以下步骤执行此操作：
+
+1. 使用`weight`修饰符将柔性项目包裹在另一个 `Column` 中。由于这个 `Column` 是灵活的，其余的内容是不灵活的，它会尽可能多地占用空间。在调整外部 `Column` 的大小后，它将能够使用所有剩余的高度。
+2. 将 `Counter` 留在默认情况下不灵活的外部 `Column` 中。
+
+``` kotlin
+import androidx.compose.foundation.layout.fillMaxHeight
+...
+
+@Composable
+fun MyScreenContent(names: List<String> = listOf("Android", "there")) {
+    val counterState = remember { mutableStateOf(0) }
+
+    Column(modifier = Modifier.fillMaxHeight()) {
+        Column(modifier = Modifier.weight(1f)) {
+            for (name in names) {
+                Greeting(name = name)
+                Divider(color = Color.Black)
+            }
+        }
+        Counter(
+            count = counterState.value,
+            updateCount = { newCount ->
+                counterState.value = newCount
+            }
+        )
+    }
+}
+```
+
+您可以在外部 Column 上使用 `fillMaxHeight()` 修饰符以使其占据尽可能多的屏幕（`fillMaxSize()` 和 `fillMaxWidth()` 修饰符也可用）。
+
+1. 如果刷新预览，您可以看到新的更改：
+
+![](https://res.cloudinary.com/neroblackstone/image/upload/v1628928206/eb089602c1c5d55e_foufyp.png)
+
+作为在 Compose 中利用 Kotlin 的另一个示例，您可以根据用户使用 if...else 语句点击按钮的次数来更改按钮的背景颜色：
+
+``` kotlin
+import androidx.compose.material.ButtonDefaults
+...
+
+@Composable
+fun Counter(count: Int, updateCount: (Int) -> Unit) {
+    Button(
+        onClick = { updateCount(count+1) },
+        colors = ButtonDefaults.buttonColors(
+            backgroundColor = if (count > 5) Color.Green else Color.White
+        )
+    ) {
+        Text("I've been clicked $count times")
+    }
+}
+```
+
+![](https://res.cloudinary.com/neroblackstone/image/upload/v1628928647/ce6ac33a852a4ee9_syzjwg.gif)
+
+现在让我们使名单更加真实。到目前为止，您已经在一个 `Column` 中显示了两个项目，但它可以处理数千个项目吗？在更改列表项之前，让我们将名称列提取到专用的 `Composable`
+
+``` kotlin
+@Composable
+fun NameList(names: List<String>, modifier: Modifier = Modifier) {
+   Column(modifier = modifier) {
+       for (name in names) {
+           Greeting(name = name)
+           Divider(color = Color.Black)
+       }
+   }
+}
+```
+
+更改 `MyScreenContent` 参数中的默认列表值以使用另一个列表构造函数，该构造函数允许设置列表大小并使用其 lambda 中包含的值填充它（此处 `$it` 代表列表索引）：
+
+``` kotlin
+names: List<String> = List(1000) { "Hello Android #$it" }
+```
+
+无论您是在交互模式下呈现它还是在设备/模拟器上部署它，您都无法滚动这些数千行，因为 `Column` 默认情况下不可滚动。
+
+要显示可滚动列，我们使用 `LazyColumn`。 `LazyColumn` 仅呈现屏幕上的可见项目，从而在呈现大列表时提高性能。相当于Android Views中的`RecyclerView`。
+
+由于列表包含数千个项目，这会在呈现时影响应用程序的流动性，因此请使用 `LazyColumn` 仅呈现屏幕上的可见元素，而不是所有元素。
+
+在其基本用法中，`LazyColumn` API 在其范围内提供了一个 `items` 元素，其中编写了单个 item 呈现逻辑：
+
+``` kotlin
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+...
+
+@Composable
+fun NameList(names: List<String>, modifier: Modifier = Modifier) {
+   LazyColumn(modifier = modifier) {
+       items(items = names) { name ->
+           Greeting(name = name)
+           Divider(color = Color.Black)
+       }
+   }
+}
+```
+
+> 注意： LazyColumn 不会像 RecyclerView 那样回收它的孩子。当您滚动浏览它时，它会发出新的可组合物，并且仍然具有性能，因为与实例化 Android 视图相比，发出可组合物的成本相对较低。
+
+![](https://res.cloudinary.com/neroblackstone/image/upload/v1628929988/7021b34729244ba8_mv1e5z.gif)
+
+## 动画列表
+
+到目前为止，用不到 100 行代码，您就能够显示一个长而高效的滚动列表，其中一个按钮在单击 5 次后会更改其背景颜色，太棒了！现在让我们使列表更具交互性。
+
+假设您想在单击后更改列表项的背景颜色。您之前已经使用按钮完成了它，但是这一次，从一种背景颜色到另一种背景颜色的过渡将是动画的，而不是即时的，如下所示：
+
+![](https://res.cloudinary.com/neroblackstone/image/upload/v1628930132/1a7b3467851eec7b_jzyxot.gif)
+
+为此，您将使用 `animateColorAsState` API，但首先您需要更新 `Greeting` Composable 以添加 `isSelected` 状态（使用`remember`为 false 进行初始化）和单击处理程序，以切换该状态：
+
+``` kotlin
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+...
+
+@Composable
+fun Greeting(name: String) {
+   var isSelected by remember { mutableStateOf(false) }
+   val backgroundColor by animateColorAsState(if (isSelected) Color.Red else Color.Transparent)
+
+   Text(
+       text = "Hello $name!",
+       modifier = Modifier
+           .padding(24.dp)
+           .background(color = backgroundColor)
+           .clickable(onClick = { isSelected = !isSelected })
+   )
+}
+```
+
+> Note: Make sure these imports are included in your file otherwise delegate properties (the by keyword) won't work:
+>
+>import androidx.compose.runtime.getValue
+>
+>import androidx.compose.runtime.setValue
+
+在这个特定用例中，`animateColorAsState` 将颜色作为参数，将其保存并自动生成显示从先前设置的颜色到新颜色的动画过渡所需的中间颜色。
+
+``` kotlin
+val backgroundColor by animateColorAsState(if (isSelected) Color.Red else Color.Transparent)
+```
+
+您现在可以通过在可组合文本上设置`background`修饰符来添加背景的动画变化：
+
+> 注意：由于 isSelected 状态在 Greeting 可组合中被提升，NameList 将不会跟踪其项目是否被选中。一旦项目滚动出屏幕，它们的状态将被设置为 false。该行为的目的是因为本练习的目标是保留一个简单的列表。为了跟踪列表中选定的项目，它们的 isSelected 状态应该在 NameList 级别提升。
