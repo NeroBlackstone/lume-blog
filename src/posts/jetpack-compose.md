@@ -494,9 +494,9 @@ fun Greeting(name: String) {
 
 > Note: Make sure these imports are included in your file otherwise delegate properties (the by keyword) won't work:
 >
->import androidx.compose.runtime.getValue
+> import androidx.compose.runtime.getValue
 >
->import androidx.compose.runtime.setValue
+> import androidx.compose.runtime.setValue
 
 在这个特定用例中，`animateColorAsState` 将颜色作为参数，将其保存并自动生成显示从先前设置的颜色到新颜色的动画过渡所需的中间颜色。
 
@@ -507,3 +507,95 @@ val backgroundColor by animateColorAsState(if (isSelected) Color.Red else Color.
 您现在可以通过在可组合文本上设置`background`修饰符来添加背景的动画变化：
 
 > 注意：由于 isSelected 状态在 Greeting 可组合中被提升，NameList 将不会跟踪其项目是否被选中。一旦项目滚动出屏幕，它们的状态将被设置为 false。该行为的目的是因为本练习的目标是保留一个简单的列表。为了跟踪列表中选定的项目，它们的 isSelected 状态应该在 NameList 级别提升。
+
+## 主题化你的应用
+
+在前面的 codelab 示例中，您没有为任何可组合项定义任何样式。您如何为您的应用设置主题？与任何其他可组合函数一样，主题是组件层次结构的一部分。 `BasicsCodelabTheme` 就是一个例子。
+
+如果您打开 `Theme.kt` 文件，您会看到 `BasicsCodelabTheme` 在其实现中使用 `MaterialTheme`。 `MaterialTheme` 是一个 Composable 函数，它反映了 [Material 设计规范](https://material.io/design/material-theming/implementing-your-theme.html)中的样式原则。样式信息会向下传递到其中的组件，这些组件可以读取信息来设置自己的样式。在您原来的简单 UI 中，您可以按如下方式使用 `BasicsCodelabTheme`
+
+因为 BasicsCodelabTheme 在内部包装了 MaterialTheme，所以使用主题中定义的属性设置 Greeting 的样式。您可以检索 MaterialTheme 的属性并使用它们以这种方式定义 Text 的样式：
+
+``` kotlin
+@Composable
+fun Greeting(name: String) {
+    Text (
+        text = "Hello $name!",
+        modifier = Modifier.padding(24.dp),
+        style = MaterialTheme.typography.h1
+    )
+}
+```
+
+上面示例中的 `Text` 可组合设置了三个参数，一个要显示的字符串、修饰符和一个 `TextStyle`。您可以创建自己的 `TextStyle`，也可以使用 `MaterialTheme.typography` 检索主题定义的样式。此构造使您可以访问 Material 定义的文本样式，例如 `h1`、`body1` 或 `Subtitle1`。在您的示例中，您使用主题中定义的 `h1` 样式。
+
+> 注意：每当您想从主题中查询颜色或文本样式时，请在可组合函数中使用 MaterialTheme.colors 或 MaterialTheme.typography。
+>For example, style = MaterialTheme.typography.body1
+>For example, color = MaterialTheme.colors.surface
+>注意：您可以使用复制功能修改预定义的样式。
+>例如，style = MaterialTheme.typography.body1.copy(color = Color.Yellow)
+
+### 创建应用的主题
+
+您可以创建一个类似于 `Theme.kt` 中的应用主题。有关更多详细信息，请参阅文件中的代码，以便您了解发生了什么。
+
+由于您可能希望在应用程序的多个位置（可能在所有活动中）使用 `BasicsCodelabTheme`，因此您创建了一个可重用的组件。
+
+正如您在**主题化您的应用程序**部分中看到的，主题是一个可组合函数，它接受其他子可组合函数。为了使其可重用，您创建了一个容器 Composable 函数，就像在**声明式 UI** 部分中所做的那样：
+
+``` kotlin
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.Composable
+
+@Composable
+fun BasicsCodelabTheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    content: @Composable () -> Unit
+) {
+
+    // TODO 
+}
+```
+
+`MaterialTheme` 保存颜色和排版的配置。此时您只需更改一些颜色即可实现您想要的设计。
+
+``` kotlin
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.darkColors
+import androidx.compose.material.lightColors
+import androidx.compose.runtime.Composable
+
+
+private val DarkColors = darkColors(
+    primary = purple200,
+    primaryVariant = purple700,
+    secondary = teal200
+)
+
+private val LightColors = lightColors(
+    primary = purple500,
+    primaryVariant = purple700,
+    secondary = teal200
+)
+
+@Composable
+fun BasicsCodelabTheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    content: @Composable () -> Unit
+) {
+    val colors = if (darkTheme) {
+        DarkColors
+    } else {
+        LightColors
+    }
+
+    MaterialTheme(colors = colors) {
+        content()
+    }
+}
+```
+
+您提供了覆盖 `lightColors` 和 `darkColors` 方法的自定义颜色，除非另有提供，否则默认颜色为浅色和深色 Material 基线主题。这被传递给 `MaterialTheme` 可组合，正如您之前看到的，它实现了 Material 设计规范中的样式原则。
+
+以同样的方式，您可以通过将它们传递给 `MaterialTheme` 函数来覆盖应用程序中使用的排版和形状。
