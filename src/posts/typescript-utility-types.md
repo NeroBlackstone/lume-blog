@@ -405,6 +405,7 @@ window.ts.transpileModule(src, {});
 
 通过交叉点扩展类型
 
+``` ts
     type Animal = {
       name: string
     }
@@ -416,7 +417,7 @@ window.ts.transpileModule(src, {});
     const bear = getBear();
     bear.name;
     bear.honey;
-
+```
 类型创建后不可更改
 
 ``` ts
@@ -608,6 +609,44 @@ interface NotOkay {
 }
 ```
   
+虽然字符串索引签名是一种描述“字典”模式的强大方式，但它们也强制所有属性匹配它们的返回类型。这是因为字符串索引声明 `obj.property` 也可用作 `obj["property"]`。在下面的例子中，`name` 的类型与字符串索引的类型不匹配，类型检查器给出了一个错误：
+  
+``` ts
+interface NumberDictionary {
+  [index: string]: number;
+ 
+  length: number; // ok
+  name: string;
+//Property 'name' of type 'string' is not assignable to 'string' index type 'number'.
+}
+```
+  
+但是，如果索引签名是属性类型的并集，则可以接受不同类型的属性：
+  
+``` ts
+interface NumberOrStringDictionary {
+  [index: string]: number | string;
+  length: number; // ok, length is a number
+  name: string; // ok, name is a string
+}
+```
+  
+最后，您可以将索引签名设为`readonly`，以防止对其索引进行赋值：
+  
+``` ts
+interface ReadonlyStringArray {
+  readonly [index: number]: string;
+}
+ 
+let myArray: ReadonlyStringArray = getReadOnlyStringArray();
+myArray[2] = "Mallory";
+//Index signature in type 'ReadonlyStringArray' only permits reading.
+```
+  
+你不能设置 `myArray[2]` 因为索引签名是`readonly`的。
+  
+总结：Index Signatures出现的需求是有必要描述key未定的object的类型（而且key本身也有两个类型）。相当于定义`类型：类型`。但是由于number的key类型在js实际上会被转化为string，那么“number类型的key对应的value类型”必须为“string类型key对应的value类型“的子类型。或者是index signatures的value为union type，其他value为union type的子集。index signatures可以为只读的。
+  
 ## 索引访问类型  
 
 我们可以使用索引访问类型来查找另一种类型的特定属性：
@@ -635,6 +674,55 @@ type I3 = Person[AliveOrName];
      
 //type I3 = string | boolean
 ```
+
+如果您尝试索引不存在的属性，您甚至会看到错误：
+  
+``` ts
+type I1 = Person["alve"];
+//Property 'alve' does not exist on type 'Person'.
+```
+  
+使用任意类型进行索引的另一个示例是使用 `number` 来获取数组元素的类型。我们可以将其与 `typeof` 结合使用，以方便地捕获数组字面量的元素类型：
+  
+``` ts
+const MyArray = [
+  { name: "Alice", age: 15 },
+  { name: "Bob", age: 23 },
+  { name: "Eve", age: 38 },
+];
+ 
+type Person = typeof MyArray[number];
+       
+//type Person = {
+//    name: string;
+//    age: number;
+//}
+type Age = typeof MyArray[number]["age"];
+     
+//type Age = number
+// Or
+type Age2 = Person["age"];
+      
+//type Age2 = number
+```
+
+您只能在索引时使用类型，这意味着您不能使用 `const` 来进行变量引用：
+  
+``` ts
+const key = "age";
+type Age = Person[key];
+//Type 'any' cannot be used as an index type.
+//'key' refers to a value, but is being used as a type here. Did you mean 'typeof key'?
+```
+  
+但是，您可以为类似的重构风格使用类型别名： 
+  
+``` ts
+type key = "age";
+type Age = Person[key];
+```
+
+总结：Indexed Access Types这种类型，主要是用来根据字面量去取object里字段的值的类型。但是要注意只能根据type去引索。
   
 ## Keyof 类型运算符
   
@@ -660,6 +748,12 @@ type M = keyof Mapish;
     
 //type M = string | number
 ```
+  
+请注意，在此示例中，`M` 是`string | number` — 这是因为 JavaScript 对象键总是被强制转换为字符串，因此 `obj[0]` 始终与 `obj["0"]` 相同。
+  
+当与映射类型结合使用时，`keyof` 类型变得特别有用，我们稍后会详细了解。
+  
+总结：keyof这个关键字主要是用于提取object的key，如果key是已知的，那么keyof的类型就是key的literal type（数字或者字符串），但是如果key是未知的，那么提取的就是number或string类型。如果key是string类型，那么keyof会提取string和number的union type，因为js里number也会被当作string，所以实际上有string的key对应了两个可能的类型。
 
 ## 模板文字类型
 
@@ -728,3 +822,43 @@ type PropEventSource<Type> = {
 /// so that you can watch for changes to properties.
 declare function makeWatchedObject<Type>(obj: Type): Type & PropEventSource<Type>;
 ```
+  
+## Intersection Types
+
+`interface`允许我们通过扩展其他类型来构建新类型。 TypeScript 提供了另一种称为intersection types的构造，主要用于组合现有的对象类型。
+  
+Intersection Types使用 `&` 运算符定义。
+  
+``` ts
+interface Colorful {
+  color: string;
+}
+interface Circle {
+  radius: number;
+}
+ 
+type ColorfulCircle = Colorful & Circle;
+```
+  
+在这里，我们将 `Colorful` 和 `Circle` 相交以产生一种新类型，该类型具有 `Colorful` 和 `Circle` 的所有成员。
+  
+``` ts
+function draw(circle: Colorful & Circle) {
+  console.log(`Color was ${circle.color}`);
+  console.log(`Radius was ${circle.radius}`);
+}
+ 
+// okay
+draw({ color: "blue", radius: 42 });
+ 
+// oops
+draw({ color: "red", raidus: 42 });
+//Argument of type '{ color: string; raidus: number; }' is not assignable to parameter of type 'Colorful & Circle'.
+//  Object literal may only specify known properties, but 'raidus' does not exist in type 'Colorful & Circle'. Did you mean to write 'radius'?
+```
+  
+## 总结：intersection type的&符号相当于加号，只不过加的不是数字，是类型。
+  
+## Interfaces vs. Intersections
+  
+我们只是研究了两种组合相似但实际上略有不同的类型的方法。对于接口，我们可以使用 extends 子句从其他类型扩展，并且我们能够对交集做类似的事情并用类型别名命名结果。两者之间的主要区别在于如何处理冲突，而这种区别通常是您在接口和交叉类型的类型别名之间选择一个而不是另一个的主要原因之一。
