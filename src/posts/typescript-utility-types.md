@@ -766,7 +766,7 @@ type World = "world";
  
 type Greeting = `hello ${World}`;
         
-type Greeting = "hello world"
+// type Greeting = "hello world"
 ```
   
 当在插值位置使用联合时，类型是每个联合成员可以表示的每个可能的字符串文字的集合：  
@@ -857,7 +857,7 @@ draw({ color: "red", raidus: 42 });
 //  Object literal may only specify known properties, but 'raidus' does not exist in type 'Colorful & Circle'. Did you mean to write 'radius'?
 ```
   
-## 总结：intersection type的&符号相当于加号，只不过加的不是数字，是类型。
+总结：intersection type的`&`符号相当于加号，只不过加的不是数字，是类型。
   
 ## Interfaces vs. Intersections
   
