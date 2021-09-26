@@ -4,6 +4,7 @@ import code_highlight from "lume/plugins/code_highlight.ts";
 import base_path from "lume/plugins/base_path.ts";
 import { parse } from "https://deno.land/std/encoding/yaml.ts";
 import anchor from "https://jspm.dev/markdown-it-anchor";
+import katex from "https://jspm.dev/@iktakahiro/markdown-it-katex"
 
 const text = await Deno.readTextFile("./src/_data/site.yml")
 const data = parse(text)
@@ -15,6 +16,7 @@ const site = lume({
   markdown: {
     plugins: [
       [anchor, { permalink: anchor.permalink.headerLink() }],
+      [katex, {}],
     ],
   }
 });
