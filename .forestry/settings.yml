@@ -5,6 +5,11 @@ admin_path: "/admin"
 webhook_url: 
 sections:
 - type: directory
+  path: src/muscixml
+  label: MusicXML
+  create: none
+  match: "*.{xml,mxl,musicxml}"
+- type: directory
   path: src/posts
   label: Pages
   create: documents
