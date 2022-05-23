@@ -23,7 +23,7 @@ sections:
   path: src/musicxml
   label: MusicXML
   create: none
-  match: "*.xml *.musicxml *.mxl"
+  match: "*.{xml,musicxml,mxl}"
   new_doc_ext: xml
 - type: document
   path: src/_data/site.yml
