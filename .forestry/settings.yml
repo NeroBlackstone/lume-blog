@@ -20,10 +20,10 @@ sections:
   path: src/about.md
   label: About
 - type: directory
-  path: src/xml
+  path: src/musicxml
   label: MusicXML
   create: none
-  match: "*.xml"
+  match: "*.xml *.musicxml *.mxl"
   new_doc_ext: xml
 - type: document
   path: src/_data/site.yml
